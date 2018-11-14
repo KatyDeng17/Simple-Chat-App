@@ -5,8 +5,8 @@ const http = require('http');
 const httpServer = http.Server(app);
 const io = require('socket.io')(httpServer);
 //require mongoose
-const mongoose = require('mongoose')
-
+const mongoose = require('mongoose');
+const mongoDBUrl = require('./config/config');
 const bodyParser = require('body-parser');
 const port = 3000
 
@@ -22,7 +22,8 @@ app.use(bodyParser.urlencoded({extended: false}))
 mongoose.Promise = Promise; 
 
 //connecting to mlab 
-const dbUrl = 'mongodb://user:user12345@ds163013.mlab.com:63013/simple-chat-app'
+// const dbUrl = 'mongodb://user:userpd@ds163013.mlab.com:63013/simple-chat-app'
+const dbUrl = mongoDBUrl.dbUrl;
 
 //setup mongoDB model schema
 const Message = mongoose.model('Message', {
@@ -46,11 +47,23 @@ app.get('/messages', async (req, res)=>{
         //    console.log(err);
         //  })
 })
+
+app.get("/messages/:user", async (req, res) => {
+  try {
+    const user = req.params.user;
+    //displaying mongoDB data .fine({name:user}): return all the messages from the user defined on the end point
+    const findMessage = await Message.find({name:user});
+    res.send(findMessage);
+  } catch (error) {
+    console.log(error);
+  }
+});
 //writing data to db
 app.post("/messages", async (req, res) => {
   console.log(req.body)
   const userInputData = req.body;
   const message = new Message(userInputData); 
+
   try{
 
     const savedMessage = await message.save();
