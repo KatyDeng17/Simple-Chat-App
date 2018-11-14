@@ -33,12 +33,13 @@ const Message = mongoose.model('Message', {
 //getting data from db
 app.get('/messages', (req, res)=>{
   //displaying mongoDB data .fine({}): return all the data 
-  Message.find({},(err, messages)=>{
-    if(err){
-      console.log(err);
-    }
-      res.send(messages);
-  })
+  Message.find({}) 
+         .then(message=>{
+           res.send(message);
+         })
+         .catch(err=>{
+           console.log(err);
+         })
 })
 //writing data to db
 app.post("/messages", (req, res) => {
