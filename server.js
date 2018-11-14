@@ -8,7 +8,10 @@ const io = require('socket.io')(httpServer)
 const bodyParser = require('body-parser');
 const port = 3000
 
-app.use(express.static(__dirname)) //showing the index.html
+//showing the index.html
+app.use(express.static(__dirname)) 
+
+
 //using the body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}))
@@ -23,14 +26,17 @@ app.get('/messages', (req, res)=>{
 })
 
 app.post("/messages", (req, res) => {
-  console.log(req.body)
+ 
   messages.push(req.body);
   console.log(messages);
+  io.emit('message', req.body)
   res.sendStatus(200)
 });
+//connect socket.io
 io.on('connection', (socket)=>{
   console.log('a user connected'); 
 })
+
 const server = httpServer.listen(port,()=>{
   console.log(`server is running on ${port}`)
 }); 

@@ -12,6 +12,7 @@
     crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
     crossorigin="anonymous"></script>
+    <!-- adding socket.io -->
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
@@ -34,19 +35,20 @@
     </div>
    </div>
    <script>
-     const socket = io()
+     const socket = io();
+
      $(()=>{
        console.log("loaded")
        $('#send').click(()=>{
-          // addMessages({ name: 'Katy', message: 'hello' })
+          // addMessage({ name: 'Katy', message: 'hello' })
           const data = { name: $("#name").val(), message: $('#message').val()}
           postMessage(data)
        })
        getMessage()
       
      }); 
-
-     const addMessages = (data)=>{
+  
+     const addMessage = (data)=>{
        $("#messagesArea").append(`
        <h4> ${data.name} </h4>
        <p> ${data.message}</p>
@@ -56,9 +58,9 @@
      const getMessage=()=>{
         $.get('http://localhost:3000/messages',(data)=>{
           console.log(data)
-          data.forEach(addMessages
+          data.forEach(addMessage
           //   element => {
-          //   addMessages(element)
+          //   addMessage(element)
             
           // }
         );
@@ -67,6 +69,7 @@
       const postMessage = (message) => {
         $.post('http://localhost:3000/messages',message)
       }
+      socket.on('message', addMessage)
    </script>
 </body>
 </html>
