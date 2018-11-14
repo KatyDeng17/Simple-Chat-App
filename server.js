@@ -51,6 +51,7 @@ app.post("/messages", async (req, res) => {
   console.log(req.body)
   const userInputData = req.body;
   const message = new Message(userInputData); 
+  
   try{
 
     const savedMessage = await message.save();

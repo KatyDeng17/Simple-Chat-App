@@ -4,7 +4,8 @@
   "description": "node app ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine",
+    "start": "node server.js"
   },
   "author": "Katy Deng",
   "license": "MTI",
@@ -15,6 +16,8 @@
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
-    "nodemon": "^1.18.6"
+    "jasmine": "^3.3.0",
+    "nodemon": "^1.18.6",
+    "request": "^2.88.0"
   }
 }
