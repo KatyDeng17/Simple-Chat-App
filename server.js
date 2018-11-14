@@ -31,40 +31,46 @@ const Message = mongoose.model('Message', {
 })
 
 //getting data from db
-app.get('/messages', (req, res)=>{
-  //displaying mongoDB data .fine({}): return all the data 
-  Message.find({},(err, messages)=>{
-    if(err){
-      console.log(err);
-    }
-      res.send(messages);
-  })
+app.get('/messages', async (req, res)=>{
+  try{
+    //displaying mongoDB data .fine({}): return all the data 
+      const findMessage = await Message.find({})
+      res.send(findMessage);
+  }catch(error){
+     console.log(error);
+  }
+        //  .then(message=>{
+        //    res.send(message)
+        //  })
+        //  .catch(err=>{
+        //    console.log(err);
+        //  })
 })
 //writing data to db
-app.post("/messages", (req, res) => {
+app.post("/messages", async (req, res) => {
   console.log(req.body)
   const userInputData = req.body;
   const message = new Message(userInputData); 
-  message.save()
-         .then(()=>{
-            console.log('user input saved into DB');
-            return Message.findOne({message: 'f*ck'})
-         })
-         .then( badword =>{
-           if(badword){
-            console.log('bad word found', badword);
-            Message.remove({_id: badword.id},(err)=>{
-             console.log('removed message with bad word')
-            })
-           }else{
-            io.emit("message", userInputData); //real time update 
-            res.sendStatus(200);
-           }   
-         })
-         .catch(err =>{
-           res.sendStatus(500);
-           return console.error(err)
-         })
+  try{
+
+    const savedMessage = await message.save();
+    console.log("user input saved into DB");
+
+    const badword = await Message.findOne({ message: "f*ck" });
+
+    if (badword) {
+      console.log("bad word found", badword);
+      await Message.remove({ _id: badword.id });
+    } else {
+      io.emit("message", userInputData); //real time update
+      res.sendStatus(200);
+    }   
+
+  }catch(error){
+      res.sendStatus(500);
+      return console.error(error)
+  }
+  
 });
 
 //connect socket.io
