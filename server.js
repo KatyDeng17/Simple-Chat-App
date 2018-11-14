@@ -18,6 +18,9 @@ app.use(express.static(__dirname))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}))
 
+//setup Promise
+mongoose.Promise = Promise; 
+
 //connecting to mlab 
 const dbUrl = 'mongodb://user:user12345@ds163013.mlab.com:63013/simple-chat-app'
 
@@ -29,7 +32,7 @@ const Message = mongoose.model('Message', {
 
 //getting data from db
 app.get('/messages', (req, res)=>{
-  //displaying mongoDB data 
+  //displaying mongoDB data .fine({}): return all the data 
   Message.find({},(err, messages)=>{
     if(err){
       console.log(err);
@@ -39,15 +42,31 @@ app.get('/messages', (req, res)=>{
 })
 //writing data to db
 app.post("/messages", (req, res) => {
-  console.log(req.body) 
-  const message = new Message(req.body); 
-  message.save(err => {
-    if (err) 
-        sendStatus(500);
-    io.emit("message", req.body);
-    res.sendStatus(200);
-  })
+  console.log(req.body)
+  const userInputData = req.body;
+  const message = new Message(userInputData); 
+  message.save()
+         .then(()=>{
+            console.log('user input saved into DB');
+            return Message.findOne({message: 'f*ck'})
+         })
+         .then( badword =>{
+           if(badword){
+            console.log('bad word found', badword);
+            Message.remove({_id: badword.id},(err)=>{
+             console.log('removed message with bad word')
+            })
+           }else{
+            io.emit("message", userInputData); //real time update 
+            res.sendStatus(200);
+           }   
+         })
+         .catch(err =>{
+           res.sendStatus(500);
+           return console.error(err)
+         })
 });
+
 //connect socket.io
 io.on('connection', (socket)=>{
   console.log('a user connected'); 
