@@ -31,38 +31,46 @@ const Message = mongoose.model('Message', {
 })
 
 //getting data from db
-app.get('/messages', (req, res)=>{
-  //displaying mongoDB data .fine({}): return all the data 
-  Message.find({})
-         .then(message=>{
-           res.send(message)
-         })
-         .catch(err=>{
-           console.log(err);
-         })
+app.get('/messages', async (req, res)=>{
+  try{
+    //displaying mongoDB data .fine({}): return all the data 
+      const findMessage = await Message.find({})
+      res.send(findMessage);
+  }catch(error){
+     console.log(error);
+  }
+        //  .then(message=>{
+        //    res.send(message)
+        //  })
+        //  .catch(err=>{
+        //    console.log(err);
+        //  })
 })
 //writing data to db
-app.post("/messages", async(req, res) => {
+app.post("/messages", async (req, res) => {
   console.log(req.body)
   const userInputData = req.body;
   const message = new Message(userInputData); 
-  const savedMessage = await message.save()
-    console.log('user input saved into DB');
+  try{
 
-    const badword = await Message.findOne({message: 'f*ck'})
+    const savedMessage = await message.save();
+    console.log("user input saved into DB");
 
-    if(badword){
-      console.log('bad word found', badword);
-      await Message.remove({_id: badword.id})
-    }else{
-      io.emit("message", userInputData); //real time update 
+    const badword = await Message.findOne({ message: "f*ck" });
+
+    if (badword) {
+      console.log("bad word found", badword);
+      await Message.remove({ _id: badword.id });
+    } else {
+      io.emit("message", userInputData); //real time update
       res.sendStatus(200);
     }   
-        //  })
-        //  .catch(err =>{
-        //    res.sendStatus(500);
-        //    return console.error(err)
-        //  })
+
+  }catch(error){
+      res.sendStatus(500);
+      return console.error(error)
+  }
+  
 });
 
 //connect socket.io
