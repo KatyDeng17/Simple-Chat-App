@@ -46,12 +46,23 @@ app.get('/messages', async (req, res)=>{
         //    console.log(err);
         //  })
 })
+
+app.get("/messages/:user", async (req, res) => {
+  try {
+    const user = req.params.user;
+    //displaying mongoDB data .fine({name:user}): return all the messages from the user defined on the end point
+    const findMessage = await Message.find({name:user});
+    res.send(findMessage);
+  } catch (error) {
+    console.log(error);
+  }
+});
 //writing data to db
 app.post("/messages", async (req, res) => {
   console.log(req.body)
   const userInputData = req.body;
   const message = new Message(userInputData); 
-  
+
   try{
 
     const savedMessage = await message.save();
