@@ -21,6 +21,12 @@ app.use(bodyParser.urlencoded({extended: false}))
 
 const dbUrl = 'mongodb://user:user12345@ds163013.mlab.com:63013/simple-chat-app'
 
+//setup mongoDB model schema
+const Message = mongoose.model('Message', {
+  name: String,
+  message: String
+})
+
 const messages = [
   { name: "katy", message: "hi" },
   { name: "james", message: "hello" }
@@ -31,11 +37,19 @@ app.get('/messages', (req, res)=>{
 })
 
 app.post("/messages", (req, res) => {
- 
-  messages.push(req.body);
-  console.log(messages);
-  io.emit('message', req.body)
-  res.sendStatus(200)
+  console.log(req.body)
+  const message = new Message(req.body); 
+  message.save(err => {
+    if (err) 
+        sendStatus(500);
+    messages.push(req.body);
+    console.log(messages);
+    io.emit("message", req.body);
+    res.sendStatus(200);
+  });
+        
+
+
 });
 //connect socket.io
 io.on('connection', (socket)=>{
