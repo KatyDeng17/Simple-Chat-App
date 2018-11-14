@@ -1,5 +1,10 @@
 const express = require('express'); 
 const app = express(); 
+//socket.io needs http server ; 
+const http = require('http'); 
+const httpServer = http.Server(app);
+const io = require('socket.io')(httpServer)
+
 const bodyParser = require('body-parser');
 const port = 3000
 
@@ -24,6 +29,6 @@ app.post("/messages", (req, res) => {
   res.sendStatus(200)
 });
 
-app.listen(port,()=>{
+const server = httpServer.listen(port,()=>{
   console.log(`server is running on ${port}`)
 }); 
